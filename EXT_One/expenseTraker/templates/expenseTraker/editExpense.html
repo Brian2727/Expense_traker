@@ -1,0 +1,62 @@
+{% extends 'layouts/base.html' %}
+{% load static %}
+
+{% block title %} Edit  {% endblock title %}
+
+{% block content %}
+
+<div class="header pb-6 d-flex align-items-center"
+     style="min-height: 50px;">
+  <!-- Mask -->
+
+
+</div>
+<!-- Page content -->
+<div class="container-fluid mt--6">
+
+        <div class="card-body">
+          <form method="post">
+              {% csrf_token %}
+            <h6 class="heading-small text-muted mb-4">Edit</h6>
+            <div class="pl-lg-4">
+              <div class="row">
+                <div class="col-lg-6">
+                  <div class="form-group">
+                    <label class="form-control-label" for="input-username">Name</label>
+                      {{ expense_form.name }}
+                  </div>
+                </div>
+                <div class="col-lg-6">
+                  <div class="form-group">
+                    <label class="form-control-label" for="input-email">Category</label>
+                      {{ expense_form.category }}
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-lg-6">
+                  <div class="form-group">
+                    <label class="form-control-label" for="input-first-name">Amount</label>
+                    {{ expense_form.amount }}
+                  </div>
+                     <div class="py-4">
+                               <button class="bg-green px-5 py-2 rounded-lg text-white font-weight-bold" type="submit"> Add </button>
+                     </div>
+                </div>
+              </div>
+            </div>
+            <hr class="my-4" />
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {% include "includes/footer.html" %}
+
+</div>
+
+{% endblock content %}
+
+<!-- Specific JS goes HERE --> 
+{% block javascripts %}{% endblock javascripts %}
