@@ -17,7 +17,7 @@ class Expense(models.Model):
     name =  models.CharField(max_length=100)
     amount = models.IntegerField()
     category = models.CharField(max_length=100,choices=expenses_type,default="")
-    date = models.DateField(auto_now=True)
+    date = models.DateField(auto_now=False)
 
     def __str__(self):
         return self.name + " Cost: " + str(self.amount) + "$ Type of: " + self.category

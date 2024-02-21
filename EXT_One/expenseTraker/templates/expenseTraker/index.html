@@ -93,8 +93,13 @@
                     </div>
                   </div>
                   <p class="mt-3 mb-0 text-sm">
-                    <span class="text-success mr-2"><i class="fa fa-arrow-up"></i> 3.48%</span>
-                    <span class="text-nowrap">Since last month</span>
+                    {% if curr_month_vs_last_month < 0 %}
+                        <span class="text-success mr-2"><i class="fa fa-arrow-down"></i> {{ curr_month_vs_last_month }}$</span>
+                        <span class="text-nowrap">Since Last Month</span>
+                  {% else %}
+                        <span class="text-danger mr-2"><i class="fa fa-arrow-up"></i> {{ curr_month_vs_last_month }}$</span>
+                        <span class="text-nowrap">Since Last Month</span>
+                      {% endif %}
                   </p>
                 </div>
               </div>
@@ -115,8 +120,13 @@
                     </div>
                   </div>
                   <p class="mt-3 mb-0 text-sm">
-                    <span class="text-success mr-2"><i class="fa fa-arrow-up"></i> 3.48%</span>
-                    <span class="text-nowrap">Since last month</span>
+                      {% if curr_week_vs_last_week < 0 %}
+                        <span class="text-success mr-2"><i class="fa fa-arrow-down"></i> {{ curr_week_vs_last_week }}$</span>
+                        <span class="text-nowrap">Since Last Week</span>
+                  {% else %}
+                        <span class="text-danger mr-2"><i class="fa fa-arrow-up"></i> {{ curr_week_vs_last_week }}$</span>
+                        <span class="text-nowrap">Since Last Week</span>
+                      {% endif %}
                   </p>
                 </div>
               </div>
