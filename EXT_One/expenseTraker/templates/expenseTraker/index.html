@@ -369,8 +369,7 @@
         $('a.new-btn').on('click', function (event) {
             $('div.new-dropdown').toggleClass('show');
         });
-
-        $('body').on('click', function (e) {
+         $('body').on('click', function (e) {
         if (!$('a.new-btn').is(e.target)
         && $('div.new-dropdown').has(e.target).length === 0
         && $('.show').has(e.target).length === 0
@@ -387,6 +386,7 @@
         }
 
         });
+
     </script>
 
 {% endblock javascripts %}

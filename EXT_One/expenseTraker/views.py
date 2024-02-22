@@ -1,47 +1,68 @@
 import datetime
 
+from django.contrib.auth.decorators import login_required
 from django.db.models import Sum
 from django.shortcuts import render, redirect
-from .forms import ExpenseForm
+from .forms import ExpenseForm, RegistrationForm
 from .models import Expense
+from django.contrib.auth import login,logout,authenticate
 
 months_key = "144025036146"
 
 def calculate_expenses(curr_day,curr_month,curr_year,curr_day_ofweek):
 #Calculates the Total amount of expenses in the current month
-    expenses_this_month = Expense.objects.filter(date__month=curr_month, date__year=curr_year).aggregate(Sum('amount'))
-
-#Calculate the total amount difference betwwen this month curr_mont and the past month.
-    expenses_past_month = Expense.objects.filter(date__year=curr_year,
+    try:
+        expenses_this_month = Expense.objects.filter(date__month=curr_month, date__year=curr_year).aggregate(Sum('amount',default=0))
+    except:
+        # If the expense filter fails then we set the amount sum to 0 sicne ther i sno expenses
+        expenses_this_month = {'amount__sum':0}
+#Calculate the total amount difference between this month curr_mont and the past month.
+#Check That we have expenses last month
+    try:
+        expenses_past_month = Expense.objects.filter(date__year=curr_year,
                                                  date__gte=datetime.date(curr_year,(curr_month-1),1),
                                                  date__lte=datetime.date(curr_year,curr_month,1))\
-                                                .aggregate(Sum('amount'))
+                                                .aggregate(Sum('amount',default=0))
+    except:
+        expenses_past_month  = {'amount__sum':0}
     curr_month_vs_last_month = expenses_this_month['amount__sum'] - expenses_past_month['amount__sum']
+
 # Calculates the Total amount of expenses in the current week
-    total_expense_week = Expense.objects.filter(date__gte=datetime.date(curr_year, curr_month, (curr_day - curr_day_ofweek + 1))).aggregate(Sum('amount'))
-
+    try:
+        total_expense_week = Expense.objects.filter(date__gte=datetime.date(curr_year, curr_month, (curr_day - curr_day_ofweek + 1))).aggregate(Sum('amount',default=0))
+    except:
+        total_expense_week = {'amount__sum':0}
 # Calculate the expenses compared to last week
-    total_expense_lastweek = Expense.objects.filter(date__gte=datetime.date(curr_year, curr_month, (curr_day - (curr_day_ofweek) - 6)),
-                                                    date__lte=datetime.date(curr_year, curr_month, (curr_day - curr_day_ofweek))).aggregate(Sum('amount'))
+    try:
+        total_expense_lastweek = Expense.objects.filter(date__gte=datetime.date(curr_year, curr_month, (curr_day - (curr_day_ofweek) - 6)),
+                                                    date__lte=datetime.date(curr_year, curr_month, (curr_day - curr_day_ofweek))).aggregate(Sum('amount',default=0))
+    except:
+        total_expense_lastweek = {'amount__sum':0}
     curr_week_vs_last_week = total_expense_week['amount__sum'] - total_expense_lastweek['amount__sum']
-    print(curr_week_vs_last_week)
-# Calculates the Total amount of expenses in the current day
-    total_expense_today = Expense.objects.filter(date__day=curr_day).aggregate(Sum('amount'))
 
+# Calculates the Total amount of expenses in the current day
+    try:
+        total_expense_today = Expense.objects.filter(date__day=curr_day).aggregate(Sum('amount',default=0))
+    except:
+        total_expense_today = {'amount__sum':0}
+#collects the expenses from yesterday and it calculates the difference
+    try:
+        total_expense_yesterday = Expense.objects.filter(date__day=curr_day - 1).aggregate(Sum('amount',default=0))
+    except:
+        total_expense_yesterday = {'amount__sum':0}
+
+
+    today_vs_yesterday = total_expense_today['amount__sum'] - total_expense_yesterday['amount__sum']
 
 # Calculates the Total amount of expenses separated by category in current day
-    category_totals_today = Expense.objects.filter(date__day=curr_day).values('category').order_by('category').annotate(sum=Sum('amount'))
-
+#no need to add a default value to this one since on the view we will not itterate ove the for loop
+    try:
+        category_totals_today = Expense.objects.filter(date__day=curr_day).values('category').order_by('category').annotate(sum=Sum('amount'))
+    except:
+        category_totals_today = {}
 # Calculate the total spended by category this week.
 
-#collects the expenses from yesterday and it calculates the difference
-    total_expense_yesterday = Expense.objects.filter(date__day=curr_day - 1).aggregate(Sum('amount'))
-    if total_expense_yesterday['amount__sum'] is None:
-        total_expense_yesterday['amount__sum'] = 0
-    if total_expense_today['amount__sum'] is None:
-        total_expense_today['amount__sum'] = 0
-    print(category_totals_today)
-    today_vs_yesterday = total_expense_today['amount__sum'] - total_expense_yesterday['amount__sum']
+
 
     return {'expenses_this_month':expenses_this_month,
             'total_expense_week':total_expense_week,
@@ -52,19 +73,44 @@ def calculate_expenses(curr_day,curr_month,curr_year,curr_day_ofweek):
             'curr_week_vs_last_week':curr_week_vs_last_week
             }
 # Create your views here.
+def sign_up(request):
+    if request.POST:
+        form = RegistrationForm(request.POST)
+        if form.is_valid():
+            user =  form.save()
+            login(request,user)
+            return redirect(index)
+    else:
+        form = RegistrationForm()
+
+    return render(request,'registration/sign-up.html',{'form':form})
+
+@login_required()
 def index(request):
     curr_day   = datetime.date.today().day
     curr_month = datetime.date.today().month
     curr_year  = datetime.date.today().year
     curr_day_ofweek = ( int((curr_year%1100)%100/4) + curr_day + int(months_key[curr_month]) + (curr_year%1100)%100 + 5) % 7
-    print(curr_day_ofweek)
+
+    #check for post request to save expense
+    #Was having issues with this save function since from a form you do not initialize so you have to do a save with
+    #comit - False to get the model back abd the add the user id and finally you can save this is only if done with a form
     if request.POST:
         expense = ExpenseForm(request.POST)
-        expense.save()
+        post = expense.save(commit=False)
+        post.user = request.user
+        post.save()
+
     expense_form = ExpenseForm()
-    expense_list = Expense.objects.all().order_by('date')
+
+    expense_list = Expense.objects.filter(user=request.user).order_by('date')
+
+    #check if there is any expenses
+
     expense_totals = calculate_expenses(curr_day,curr_month,curr_year,curr_day_ofweek)
-    
+
+
+
     return render(request,"expenseTraker/index.html",{'expense_form':expense_form,
                                                       'expense_list':expense_list,
                                                       'total_expense_month': expense_totals['expenses_this_month'],
