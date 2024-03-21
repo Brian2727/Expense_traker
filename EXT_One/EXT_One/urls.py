@@ -21,7 +21,6 @@ from django.urls import path, include
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('',include('expenseTraker.urls')),
+    path('api/',include('EXT_api.urls')),
     path('accounts/',include('django.contrib.auth.urls')),
-
-
 ]

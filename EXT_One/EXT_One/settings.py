@@ -31,6 +31,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'EXT_api',
     'expenseTraker',
     'django.contrib.admin',
     'django.contrib.auth',

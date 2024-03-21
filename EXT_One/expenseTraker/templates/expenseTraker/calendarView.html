@@ -1,0 +1,89 @@
+{% extends 'layouts/base.html' %}
+    {% block title %}
+        Calendar
+    {% endblock %}
+    {% block stylesheets %}
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.0/fullcalendar.min.css" />
+    {% endblock stylesheets %}
+
+
+    {% block content %}
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f0f0f0;
+      color: #333;
+    }
+    #fullCalendar {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #fff;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    .fc-day:hover {
+      background-color: rgba(0, 0, 0, 0.1);
+    }
+    .fc-event {
+      background-color: #4c70ff;
+      border-color: #4c70ff;
+    }
+    .fc-event:hover {
+      background-color: #395ea6;
+      border-color: #395ea6;
+    }
+    .fc-day-top {
+      background-color: #fff;
+      border-bottom: 1px solid #ddd;
+    }
+    .fc-event-title {
+      color: #fff;
+
+    }
+    .fc-event {
+      padding: 1px 5px;
+      border-radius: 5px;
+      font-size: 12px;
+    }
+    .fc-daygrid-day {
+      min-height: 100px; /* Adjust cell height for better touch experience */
+    }
+  </style>
+
+
+        <div style="padding-top: 20px" id="fullCalendar"></div>
+    {% endblock content %}
+    {% block javascripts %}
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.0/fullcalendar.min.js"></script>
+        <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            $('#fullCalendar').fullCalendar({
+
+                header: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'month,agendaWeek,agendaDay'
+                },
+                events: '/api/calendar_data/{{ request.user.id }}',
+                dayClick: function(date, allDay, jsEvent, view)
+                {
+                    console.log(date)
+                  // Redirect to a specific URL when a day is clicked
+                  window.location.href = '/day_view/' + date.format();
+                },
+                 eventMouseEnter: function(info) {
+                    info.el.style.backgroundColor = '#4568d1';
+                    info.el.style.borderColor = '#4568d1';
+                    },
+                eventMouseLeave: function(info) {
+                    info.el.style.backgroundColor = '#4c70ff';
+                    info.el.style.borderColor = '#4c70ff';
+                }
+            });
+        });
+    </script>
+    {% endblock javascripts %}
+

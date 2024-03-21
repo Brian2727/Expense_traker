@@ -5,16 +5,19 @@ from django.db.models import Sum
 from django.shortcuts import render, redirect
 from .forms import ExpenseForm, RegistrationForm
 from .models import Expense
-from .helper import Expenditure_Statistics
 from django.contrib.auth import login,logout,authenticate
 
 months_key = "144025036146"
 
 def calculate_totalexpense_bymonth(curr_year,uid):
-    months = ["Jan","Feb","Mar","Apr","May",'Jun',"Jul", "Aug", "Sept", "Oct", "Nov", "Dec"]
+    months = ["Jan","Feb","Mar","Apr","May",'Jun',"Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+    months_totals = {}
     for num,month in zip(range(1,13),months):
-        print(Expense.objects.filter(date__month=num,user_id=uid).aggregate(Sum('amount',default=0)))
+        month_total = Expense.objects.filter(date__month=num,user_id=uid).aggregate(Sum('amount',default=0))['amount__sum']
 
+        months_totals[month] = month_total
+    print(months_totals)
+    return months_totals
 def calculate_expenses(curr_day,curr_month,curr_year,curr_day_ofweek,uid):
 #Calculates the Total amount of expenses in the current month
     try:
@@ -35,12 +38,13 @@ def calculate_expenses(curr_day,curr_month,curr_year,curr_day_ofweek,uid):
 
 # Calculates the Total amount of expenses in the current week
     try:
-        total_expense_week = Expense.objects.filter(user_id=uid,date__gte=datetime.date(curr_year, curr_month, (curr_day - curr_day_ofweek + 1))).aggregate(Sum('amount',default=0))
+        total_expense_week = Expense.objects.filter(user_id=uid,date__gte=datetime.date(curr_year, curr_month, (curr_day - curr_day_ofweek)),
+                                                    date__lte=datetime.date(curr_year, curr_month, (curr_day - curr_day_ofweek + 7))).aggregate(Sum('amount',default=0))
     except:
         total_expense_week = {'amount__sum':0}
 # Calculate the expenses compared to last week
     try:
-        total_expense_lastweek = Expense.objects.filter(user_id=uid,date__gte=datetime.date(curr_year, curr_month, (curr_day - (curr_day_ofweek) - 6)),
+        total_expense_lastweek = Expense.objects.filter(user_id=uid,date__gte=datetime.date(curr_year, curr_month, (curr_day - (curr_day_ofweek) - 7)),
                                                     date__lte=datetime.date(curr_year, curr_month, (curr_day - curr_day_ofweek))).aggregate(Sum('amount',default=0))
     except:
         total_expense_lastweek = {'amount__sum':0}
@@ -78,7 +82,20 @@ def calculate_expenses(curr_day,curr_month,curr_year,curr_day_ofweek,uid):
             'curr_month_vs_last_month':curr_month_vs_last_month,
             'curr_week_vs_last_week':curr_week_vs_last_week
             }
-# Create your views here.
+
+def calculate_day_expenses(date,uid):
+    sel_day_expenses = {}
+    category_totals_selected_day = Expense.objects.filter(user_id=uid, date=date).values('category').annotate(sum=Sum('amount'))
+    category_totals_selected_day = category_totals_selected_day.order_by('-sum')
+    print(category_totals_selected_day)
+    total_Expenses_selected_day = Expense.objects.filter(date=date, user_id=uid).annotate(sum=Sum('amount'))
+    sel_day_expenses['category_totals_selected_day'] = category_totals_selected_day
+    sel_day_expenses['total_Expenses_selected_day'] = total_Expenses_selected_day
+
+    print(sel_day_expenses)
+    return sel_day_expenses
+
+# Create your views here--------------------------------------------------------------------------------------------------------------------.
 def sign_up(request):
     if request.POST:
         form = RegistrationForm(request.POST)
@@ -95,13 +112,19 @@ def Log_out(request):
     logout(request)
     return redirect(index)
 
+def Profile(request,uid):
+
+    return render(request,'expenseTraker/profile.html',{
+        'uid':uid
+    })
 @login_required()
 def index(request):
     user_id = request.user.id
     curr_day   = datetime.date.today().day
     curr_month = datetime.date.today().month
     curr_year  = datetime.date.today().year
-    curr_day_ofweek = ( int((curr_year%1100)%100/4) + curr_day + int(months_key[curr_month]) + (curr_year%1100)%100 + 5) % 7
+    curr_day_ofweek = datetime.date.today().weekday() + 1 #( int((curr_year%1100)%100/4) + curr_day + int(months_key[curr_month]) + (curr_year%1100)%100 + 5) % 7
+    print(f"current day of week {curr_day_ofweek}")
     calculate_totalexpense_bymonth(curr_year,user_id)
     #check for post request to save expense
     #Was having issues with this save function since from a form you do not initialize so you have to do a save with
@@ -114,12 +137,12 @@ def index(request):
 
     expense_form = ExpenseForm()
 
-    expense_list = Expense.objects.filter(user=request.user).order_by('date')
+    expense_list = Expense.objects.filter(user=request.user,date__month=curr_month).order_by('date')
 
     #check if there is any expenses adding user id to get users expenses
 
     expense_totals = calculate_expenses(curr_day,curr_month,curr_year,curr_day_ofweek,user_id)
-
+    months_totals = calculate_totalexpense_bymonth(uid=user_id,curr_year=curr_year)
 
 
     return render(request,"expenseTraker/index.html",{'expense_form':expense_form,
@@ -130,9 +153,35 @@ def index(request):
                                                       'curr_week_vs_last_week':expense_totals['curr_week_vs_last_week'],
                                                       'total_expense_today':expense_totals['total_expense_today'],
                                                       'today_vs_yesterday':expense_totals['today_vs_yesterday'],
-                                                      'category_totals_today':expense_totals['category_totals_today']
+                                                      'category_totals_today':expense_totals['category_totals_today'],
+                                                      'months_totals':months_totals
                                                       })
+@login_required()
+def calendar_View(request):
 
+    return render(request,"expenseTraker/calendarView.html")
+
+@login_required()
+def day_view(request,date):
+    expense_form = ExpenseForm()
+    if request.POST:
+        expense = ExpenseForm(request.POST)
+        post = expense.save(commit=False)
+
+        post.user = request.user
+
+        print(f"this is my post {post.save(date=date)}")
+    expenses_metrics_today = calculate_day_expenses(date,request.user.id)
+    expense_list = Expense.objects.filter(date=date,user_id=request.user.id)
+    total_expense = expense_list.aggregate(sum=Sum('amount'))['sum']
+    print(total_expense)
+    return render(request,'expenseTraker/day_view.html',{
+        'expense_form': expense_form,
+        "expense_list":expense_list,
+        "expense_by_category": expenses_metrics_today["category_totals_selected_day"],
+        "total_expense": total_expense,
+        "selected_day":date
+    })
 
 def editExpense(request,id):
 
@@ -144,7 +193,7 @@ def editExpense(request,id):
         form = ExpenseForm(request.POST,instance=expense)
         if form.is_valid():
             form.save()
-            return redirect(index)
+            return render(request,"expenseTraker/editExpense.html",{'expense_form':expense_form})
     return render(request,"expenseTraker/editExpense.html",{'expense_form':expense_form})
 
 def deleteExpense(request,id):

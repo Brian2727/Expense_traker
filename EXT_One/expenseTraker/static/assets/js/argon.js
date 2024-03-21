@@ -1,22 +1,4 @@
 
-/*!
-
-=========================================================
-* Argon Dashboard - v1.2.0
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/argon-dashboard
-* Copyright 2020 Creative Tim (https://www.creative-tim.com)
-* Licensed under MIT (https://github.com/creativetimofficial/argon-dashboard/blob/master/LICENSE.md)
-
-* Coded by www.creative-tim.com
-
-=========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-*/
-
 
 
 //
@@ -159,7 +141,7 @@ var Layout = (function() {
         }
     })
 
-})();
+})
 
 //
 // Charts
@@ -208,119 +190,125 @@ var Charts = (function() {
 	// Methods
 
 	// Chart.js global options
-	function chartOptions() {
+	try {
+		function chartOptions() {
 
-		// Options
-		var options = {
-			defaults: {
-				global: {
-					responsive: true,
-					maintainAspectRatio: false,
-					defaultColor: (mode == 'dark') ? colors.gray[700] : colors.gray[600],
-					defaultFontColor: (mode == 'dark') ? colors.gray[700] : colors.gray[600],
-					defaultFontFamily: fonts.base,
-					defaultFontSize: 13,
-					layout: {
-						padding: 0
-					},
-					legend: {
-						display: false,
-						position: 'bottom',
-						labels: {
-							usePointStyle: true,
-							padding: 16
+			// Options
+			var options = {
+				defaults: {
+					global: {
+						responsive: true,
+						maintainAspectRatio: false,
+						defaultColor: (mode == 'dark') ? colors.gray[700] : colors.gray[600],
+						defaultFontColor: (mode == 'dark') ? colors.gray[700] : colors.gray[600],
+						defaultFontFamily: fonts.base,
+						defaultFontSize: 13,
+						layout: {
+							padding: 0
+						},
+						legend: {
+							display: false,
+							position: 'bottom',
+							labels: {
+								usePointStyle: true,
+								padding: 16
+							}
+						},
+						elements: {
+							point: {
+								radius: 0,
+								backgroundColor: colors.theme['primary']
+							},
+							line: {
+								tension: .4,
+								borderWidth: 4,
+								borderColor: colors.theme['primary'],
+								backgroundColor: colors.transparent,
+								borderCapStyle: 'rounded'
+							},
+							rectangle: {
+								backgroundColor: colors.theme['warning']
+							},
+							arc: {
+								backgroundColor: colors.theme['primary'],
+								borderColor: (mode == 'dark') ? colors.gray[800] : colors.white,
+								borderWidth: 4
+							}
+						},
+						tooltips: {
+							enabled: true,
+							mode: 'index',
+							intersect: false,
 						}
 					},
-					elements: {
-						point: {
-							radius: 0,
-							backgroundColor: colors.theme['primary']
-						},
-						line: {
-							tension: .4,
-							borderWidth: 4,
-							borderColor: colors.theme['primary'],
-							backgroundColor: colors.transparent,
-							borderCapStyle: 'rounded'
-						},
-						rectangle: {
-							backgroundColor: colors.theme['warning']
-						},
-						arc: {
-							backgroundColor: colors.theme['primary'],
-							borderColor: (mode == 'dark') ? colors.gray[800] : colors.white,
-							borderWidth: 4
+					doughnut: {
+						cutoutPercentage: 83,
+						legendCallback: function (chart) {
+							var data = chart.data;
+							var content = '';
+
+							data.labels.forEach(function (label, index) {
+								var bgColor = data.datasets[0].backgroundColor[index];
+
+								content += '<span class="chart-legend-item">';
+								content += '<i class="chart-legend-indicator" style="background-color: ' + bgColor + '"></i>';
+								content += label;
+								content += '</span>';
+							});
+
+							return content;
 						}
-					},
-					tooltips: {
-						enabled: true,
-						mode: 'index',
-						intersect: false,
-					}
-				},
-				doughnut: {
-					cutoutPercentage: 83,
-					legendCallback: function(chart) {
-						var data = chart.data;
-						var content = '';
-
-						data.labels.forEach(function(label, index) {
-							var bgColor = data.datasets[0].backgroundColor[index];
-
-							content += '<span class="chart-legend-item">';
-							content += '<i class="chart-legend-indicator" style="background-color: ' + bgColor + '"></i>';
-							content += label;
-							content += '</span>';
-						});
-
-						return content;
 					}
 				}
 			}
+			try {
+				// yAxes
+				Chart.scaleService.updateScaleDefaults('linear', {
+					gridLines: {
+						borderDash: [2],
+						borderDashOffset: [2],
+						color: (mode == 'dark') ? colors.gray[900] : colors.gray[300],
+						drawBorder: false,
+						drawTicks: false,
+						drawOnChartArea: true,
+						zeroLineWidth: 0,
+						zeroLineColor: 'rgba(0,0,0,0)',
+						zeroLineBorderDash: [2],
+						zeroLineBorderDashOffset: [2]
+					},
+					ticks: {
+						beginAtZero: true,
+						padding: 10,
+						callback: function (value) {
+							if (!(value % 10)) {
+								return value
+							}
+						}
+					}
+				});
+
+				// xAxes
+				Chart.scaleService.updateScaleDefaults('category', {
+					gridLines: {
+						drawBorder: false,
+						drawOnChartArea: false,
+						drawTicks: false
+					},
+					ticks: {
+						padding: 20
+					},
+					maxBarThickness: 10
+				});
+			} catch (e) {
+				console.log(e)
+			}
+			return options;
+
 		}
-
-		// yAxes
-		Chart.scaleService.updateScaleDefaults('linear', {
-			gridLines: {
-				borderDash: [2],
-				borderDashOffset: [2],
-				color: (mode == 'dark') ? colors.gray[900] : colors.gray[300],
-				drawBorder: false,
-				drawTicks: false,
-				drawOnChartArea: true,
-				zeroLineWidth: 0,
-				zeroLineColor: 'rgba(0,0,0,0)',
-				zeroLineBorderDash: [2],
-				zeroLineBorderDashOffset: [2]
-			},
-			ticks: {
-				beginAtZero: true,
-				padding: 10,
-				callback: function(value) {
-					if (!(value % 10)) {
-						return value
-					}
-				}
-			}
-		});
-
-		// xAxes
-		Chart.scaleService.updateScaleDefaults('category', {
-			gridLines: {
-				drawBorder: false,
-				drawOnChartArea: false,
-				drawTicks: false
-			},
-			ticks: {
-				padding: 20
-			},
-			maxBarThickness: 10
-		});
-
-		return options;
-
 	}
-
+	catch (e) {
+		console.log(e)
+	}
 	// Parse global options
 	function parseOptions(parent, options) {
 		for (var item in options) {
@@ -614,7 +602,7 @@ var NavbarCollapse = (function() {
 				 $('body').removeClass('nav-open');
 					navbar_menu_visible = 0;
 					$('.bodyClick').remove();
-					
+
 			 });
 
 		 $('body').addClass('nav-open');
@@ -827,8 +815,37 @@ var BarsChart = (function() {
 	//
 	// Variables
 	//
+	fetch(`/api/get_user_category_spend/${uid}`)
+		.then(response => response.json())
+		.then(data => {
+			console.log(Object.keys(data))
+			console.log(Object.values(data))
+			var $chart = $('#chart-bars');
 
-	var $chart = $('#chart-bars');
+			function initChart($chart)
+			{
+				// Create chart
+				var ordersChart = new Chart($chart, {
+					type: 'pie',
+					data: {
+						labels: Object.keys(data),
+						datasets: [{
+							data: Object.values(data),
+							backgroundColor: ["#e60049", "#0bb4ff", "#50e991", "#e6d800", "#9b19f5", "#ffa300", "#dc0ab4", "#b3d4ff", "#00bfa0"],
+						}]
+					}
+				});
+
+				// Save to jQuery object
+				$chart.data('chart', ordersChart);
+			}
+			// Init chart
+			if ($chart.length) {
+				initChart($chart);
+			}
+		});
+
+
 
 
 	//
@@ -836,29 +853,7 @@ var BarsChart = (function() {
 	//
 
 	// Init chart
-	function initChart($chart) {
 
-		// Create chart
-		var ordersChart = new Chart($chart, {
-			type: 'bar',
-			data: {
-				labels: ['Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-				datasets: [{
-					label: 'Sales',
-					data: [25, 20, 30, 22, 17, 29]
-				}]
-			}
-		});
-
-		// Save to jQuery object
-		$chart.data('chart', ordersChart);
-	}
-
-
-	// Init chart
-	if ($chart.length) {
-		initChart($chart);
-	}
 
 })();
 
@@ -870,72 +865,82 @@ var BarsChart = (function() {
 
 var SalesChart = (function() {
 
+
+
+	fetch(`/api/get_user_chart_data/${uid}`)
+		.then(response => response.json())
+		.then(data => {
+			console.log(Object.keys(data))
+			console.log(data.data)
+			var $chart = $('#chart-sales-dark');
+
+
+				// Methods
+
+				function init($chart) {
+
+						var salesChart = new Chart($chart, {
+						  type: 'line',
+						  options: {
+							scales: {
+							  yAxes: [{
+								gridLines: {
+								  lineWidth: 1,
+								  color: Charts.colors.gray[900],
+								  zeroLineColor: Charts.colors.gray[900]
+								},
+								ticks: {
+								  callback: function(value) {
+									if (!(value % 10)) {
+									  return '$' + value + '';
+									}
+								  }
+								}
+							  }]
+							},
+							tooltips: {
+							  callbacks: {
+								label: function(item, data) {
+								  var label = data.datasets[item.datasetIndex].label || '';
+								  var yLabel = item.yLabel;
+								  var content = '';
+
+								  if (data.datasets.length > 1) {
+									content += '<span class="popover-body-label mr-auto">' + label + '</span>';
+								  }
+
+								  content += '$' + yLabel ;
+								  return content;
+								}
+							  }
+							}
+						  },
+						  data: {
+							labels: Object.keys(data),
+							datasets: [{
+							  label: 'Performance',
+							  data: Object.values(data)
+							}]
+						  }
+				});
+
+				// Save to jQuery object
+
+				$chart.data('chart', salesChart);
+
+			  };
+
+
+			  // Events
+
+			  if ($chart.length) {
+				init($chart);
+			  }
+					});
+
   // Variables
 
-  var $chart = $('#chart-sales-dark');
 
-
-  // Methods
-
-  function init($chart) {
-
-    var salesChart = new Chart($chart, {
-      type: 'line',
-      options: {
-        scales: {
-          yAxes: [{
-            gridLines: {
-              lineWidth: 1,
-              color: Charts.colors.gray[900],
-              zeroLineColor: Charts.colors.gray[900]
-            },
-            ticks: {
-              callback: function(value) {
-                if (!(value % 10)) {
-                  return '$' + value + 'k';
-                }
-              }
-            }
-          }]
-        },
-        tooltips: {
-          callbacks: {
-            label: function(item, data) {
-              var label = data.datasets[item.datasetIndex].label || '';
-              var yLabel = item.yLabel;
-              var content = '';
-
-              if (data.datasets.length > 1) {
-                content += '<span class="popover-body-label mr-auto">' + label + '</span>';
-              }
-
-              content += '<span class="popover-body-value">$' + yLabel + 'k</span>';
-              return content;
-            }
-          }
-        }
-      },
-      data: {
-        labels: ['May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-        datasets: [{
-          label: 'Performance',
-          data: [0, 20, 10, 30, 15, 40, 20, 60, 60]
-        }]
-      }
-    });
-
-    // Save to jQuery object
-
-    $chart.data('chart', salesChart);
-
-  };
-
-
-  // Events
-
-  if ($chart.length) {
-    init($chart);
-  }
 
 })();
 
