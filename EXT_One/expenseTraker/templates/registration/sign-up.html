@@ -1,116 +1,121 @@
 {% extends 'layouts/base-fullscreen.html' %}
 
 {% block title %} Register {% endblock title %}
-{% load crispy_forms_filters %}
 
-<!-- Specific CSS goes HERE -->
-{% block stylesheets %}{% endblock stylesheets %}
+{% block stylesheets %}
+<link rel="stylesheet" href="/static/assets/css/auth.css">
+{% endblock stylesheets %}
 
 {% block content %}
-
-    <!-- Page content -->
-    <div class="container mt--8 pb-5">
-      <!-- Table -->
-      <div class="row justify-content-center">
-        <div class="col-lg-6 col-md-8">
-        
-          <div class="card bg-secondary shadow border-0">
-            <div class="card-header bg-transparent pb-5">
-              <div class="text-muted text-center mt-2 mb-1">
-                Sign Up
-              </div>
+<div class="auth-container">
+    <div class="auth-card">
+        <!-- Header -->
+        <div class="auth-header">
+            <div class="auth-logo">
+                <i class="ri-money-dollar-circle-line"></i>
+                <span>ExpenseTracker</span>
             </div>
-            <div class="card-body px-lg-5 py-lg-5">
-              <div class="text-center text-muted mb-4">
-
-                {% if msg %}
-                  <small>{{ msg | safe }}</small>
-                {% else %}
-                  Add your credentials
-                {% endif %}  
-              
-              </div>
-
-              {% if not success %}
-
-                <form method="POST">
-
-                  {% csrf_token %}
-            
-                  <div class="form-group">
-                    <div class="input-group input-group-alternative mb-3">
-                      <div class="input-group-prepend">
-                        <span class="input-group-text"><i class="ni ni-hat-3"></i></span>
-                      </div>
-                      {{ form.username|as_crispy_field }}
-                    </div>
-                  </div>
-                  <span class="text-error">{{ form.username.errors|as_crispy_errors }}</span>
-
-                  <div class="form-group">
-                    <div class="input-group input-group-alternative mb-3">
-                      <div class="input-group-prepend">
-                        <span class="input-group-text"><i class="ni ni-email-83"></i></span>
-                      </div>
-                      {{ form.email|as_crispy_field }}
-                    </div>
-                  </div>
-                  <span class="text-error">{{ form.email.errors|as_crispy_errors }}</span>
-
-                  <div class="form-group">
-                    <div class="input-group input-group-alternative">
-                      <div class="input-group-prepend">
-                        <span class="input-group-text"><i class="ni ni-lock-circle-open"></i></span>
-                      </div>
-                      {{ form.password1|as_crispy_field }}
-                    </div>
-                  </div>
-                  <span class="text-error">{{ form.password1.errors|as_crispy_errors }}</span>
-
-                  <div class="form-group">
-                    <div class="input-group input-group-alternative">
-                      <div class="input-group-prepend">
-                        <span class="input-group-text"><i class="ni ni-lock-circle-open"></i></span>
-                      </div>
-                      {{ form.password2|as_crispy_field }}
-                    </div>
-                  </div>
-                  <span class="text-error">{{ form.password2.errors|as_crispy_errors }}</span>
-
-                  <div class="row my-4">
-                    <div class="col-12">
-                      <div class="custom-control custom-control-alternative custom-checkbox">
-                        <input class="custom-control-input" id="customCheckRegister" type="checkbox">
-                        <label class="custom-control-label" for="customCheckRegister">
-                          <span class="text-muted">I agree with the <a href="#!">Privacy Policy</a></span>
-                        </label>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="text-center">
-                    <button type="submit" class="btn btn-primary mt-4">Create account</button>
-                  </div>
-                </form>
-
-              {% endif %}  
-  
-            </div>
-          </div>
-
+            <p class="auth-subtitle">Create your account to start managing expenses</p>
         </div>
-      </div>
 
-      <div class="row mt-3">
-        <div class="col-3"></div>
-        <div class="col-3">
-          <a href="{% url 'login' %}" class="text-light"><small>Login</small></a>
+        <!-- Sign Up Form -->
+        <div class="auth-form">
+            {% if msg %}
+                <div class="mb-4 p-4 rounded-lg {% if success %}bg-green-50 text-green-700{% else %}bg-red-50 text-red-700{% endif %}">
+                    {{ msg | safe }}
+                </div>
+            {% endif %}
+
+            {% if not success %}
+            <form method="POST" class="space-y-6">
+                {% csrf_token %}
+
+                <!-- Username Field -->
+                <div class="form-group">
+                    <label for="id_username" class="form-label">Username</label>
+                    <div class="form-input-group">
+                        <input type="text" name="username" id="id_username" required 
+                               class="form-input" placeholder="Choose a username">
+                        <i class="ri-user-line form-input-icon"></i>
+                    </div>
+                    {% if form.username.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.username.errors|join:", " }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Email Field -->
+                <div class="form-group">
+                    <label for="id_email" class="form-label">Email Address</label>
+                    <div class="form-input-group">
+                        <input type="email" name="email" id="id_email" required 
+                               class="form-input" placeholder="Enter your email">
+                        <i class="ri-mail-line form-input-icon"></i>
+                    </div>
+                    {% if form.email.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.email.errors|join:", " }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Password Field -->
+                <div class="form-group">
+                    <label for="id_password1" class="form-label">Password</label>
+                    <div class="form-input-group">
+                        <input type="password" name="password1" id="id_password1" required 
+                               class="form-input" placeholder="Create a password">
+                        <i class="ri-lock-line form-input-icon"></i>
+                    </div>
+                    {% if form.password1.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.password1.errors|join:", " }}</p>
+                    {% endif %}
+                    <ul class="mt-2 text-sm text-gray-500 space-y-1">
+                        <li><i class="ri-checkbox-circle-line text-green-500"></i> At least 8 characters</li>
+                        <li><i class="ri-checkbox-circle-line text-green-500"></i> Mix of letters and numbers</li>
+                        <li><i class="ri-checkbox-circle-line text-green-500"></i> At least one special character</li>
+                    </ul>
+                </div>
+
+                <!-- Confirm Password Field -->
+                <div class="form-group">
+                    <label for="id_password2" class="form-label">Confirm Password</label>
+                    <div class="form-input-group">
+                        <input type="password" name="password2" id="id_password2" required 
+                               class="form-input" placeholder="Confirm your password">
+                        <i class="ri-lock-password-line form-input-icon"></i>
+                    </div>
+                    {% if form.password2.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.password2.errors|join:", " }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Terms Checkbox -->
+                <div class="form-checkbox">
+                    <input type="checkbox" id="terms" name="terms" required>
+                    <label for="terms">I agree to the 
+                        <a href="#" class="auth-link">Terms of Service</a> and 
+                        <a href="#" class="auth-link">Privacy Policy</a>
+                    </label>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" class="auth-btn">
+                    <i class="ri-user-add-line"></i>
+                    Create Account
+                </button>
+
+                <!-- Divider -->
+                <div class="divider">
+                    <span>or</span>
+                </div>
+
+                <!-- Login Link -->
+                <div class="auth-links">
+                    <p>Already have an account?
+                        <a href="{% url 'login' %}" class="auth-link">Sign in here</a>
+                    </p>
+                </div>
+            </form>
+            {% endif %}
         </div>
-      </div>
-
     </div>
-  </div>
-
+</div>
 {% endblock content %}
-
-<!-- Specific JS goes HERE --> 
-{% block javascripts %}{% endblock javascripts %}

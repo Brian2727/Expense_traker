@@ -1,69 +1,77 @@
 {% extends 'layouts/base-fullscreen.html' %}
-{% load crispy_forms_filters %}
 
 {% block title %} Login {% endblock title %}
-{% load crispy_forms_tags %}
-<!-- Specific CSS goes HERE -->
-{% block stylesheets %}
 
+{% block stylesheets %}
+<link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+<link rel="stylesheet" href="/static/assets/css/auth.css">
 {% endblock stylesheets %}
 
 {% block content %}
-
-    <!-- Page content -->
-    <div class="container mt--8 pb-5">
-      <div class="row justify-content-center">
-        <div class="col-lg-5 col-md-7">
-          <div class="card bg-secondary shadow border-0">
-            <div class="card-header bg-transparent pb-5">
-              <div class="text-muted text-center mt-2 mb-1">
-                Sign In
-              </div>
+<div class="auth-container">
+    <div class="auth-card">
+        <!-- Header -->
+        <div class="auth-header">
+            <div class="auth-logo">
+                <i class="ri-money-dollar-circle-line"></i>
+                <span>ExpenseTracker</span>
             </div>
-            <div class="card-body px-lg-5 py-lg-5">
+            <p class="auth-subtitle">Welcome back! Please sign in to continue</p>
+        </div>
 
-              <form method="POST">
-
+        <!-- Login Form -->
+        <div class="auth-form">
+            <form method="POST" class="login-form">
                 {% csrf_token %}
 
-                <div class="form-group mb-3">
-                  <div class="input-group input-group-alternative">
-                    <div class="input-group-prepend">
-                      <span class="input-group-text"><i class="ni ni-hat-3"></i></span>
-                    </div>
-                      {{ form.username|as_crispy_field }}
-                  </div>
-                </div>
+                <!-- Username Field -->
                 <div class="form-group">
-                  <div class="input-group input-group-alternative">
-                    <div class="input-group-prepend">
-                      <span class="input-group-text"><i class="ni ni-lock-circle-open"></i></span>
+                    <label for="id_username" class="form-label">Username</label>
+                    <div class="form-input-group">
+                        <input type="text" name="username" id="id_username" required 
+                               class="form-input" placeholder="Enter your username">
+                        <i class="ri-user-line form-input-icon"></i>
                     </div>
-                    {{ form.password|as_crispy_field }}
-                  </div>
                 </div>
-                <div class="custom-control custom-control-alternative custom-checkbox">
-                  <input class="custom-control-input" id=" customCheckLogin" type="checkbox">
-                  <label class="custom-control-label" for=" customCheckLogin">
-                    <span class="text-muted">Remember me</span>
-                  </label>
+
+                <!-- Password Field -->
+                <div class="form-group">
+                    <label for="id_password" class="form-label">Password</label>
+                    <div class="form-input-group">
+                        <input type="password" name="password" id="id_password" required 
+                               class="form-input" placeholder="Enter your password">
+                        <i class="ri-lock-line form-input-icon"></i>
+                    </div>
                 </div>
-                <div class="text-center">
-                  <button type="submit" class="btn btn-primary my-4">Sign in</button>
+
+                <!-- Remember Me -->
+                <div class="form-checkbox">
+                    <input type="checkbox" id="remember_me" name="remember_me">
+                    <label for="remember_me">Keep me signed in</label>
                 </div>
-              </form>
-            </div>
-          </div>
-          <div class="row mt-3">
-            <div class="col-6">
-              <a href="{% url 'sign-up' %}" class="text-light"><small>Register</small></a>
-            </div>
-          </div>
+
+                <!-- Submit Button -->
+                <button type="submit" class="auth-btn">
+                    <i class="ri-login-circle-line"></i>
+                    Sign In
+                </button>
+
+                <!-- Divider -->
+                <div class="divider">
+                    <span>or</span>
+                </div>
+
+                <!-- Register Link -->
+                <div class="auth-links">
+                    <p>New to ExpenseTracker?
+                        <a href="{% url 'sign-up' %}" class="auth-link">Create an account</a>
+                    </p>
+                    <a href="{% url 'password_reset' %}" class="auth-link">
+                        <small>Forgot your password?</small>
+                    </a>
+                </div>
+            </form>
         </div>
-      </div>
     </div>
-
+</div>
 {% endblock content %}
-
-<!-- Specific JS goes HERE --> 
-{% block javascripts %}{% endblock javascripts %}

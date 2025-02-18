@@ -33,3 +33,7 @@ class Expense(models.Model):
             self.date = date or timezone.now()
             print(self.date)
         super().save(*args, **kwargs)
+
+    class Address(models.Model):
+        user = models.OneToOneField(User, on_delete=models.CASCADE)
+        address = models.CharField(max_length=255)

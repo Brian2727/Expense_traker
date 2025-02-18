@@ -15,9 +15,9 @@ def calculate_totalexpense_bymonth(curr_year,uid):
         months_totals[month] = month_total
     return months_totals
 
-def calculate_spend_per_category(uid,curr_day):
+def calculate_spend_per_category(uid,curr_day,curr_month,curr__year):
     try:
-        category_totals_today = Expense.objects.filter(user_id=uid,date__day=curr_day).values('category').order_by('category').annotate(sum=Sum('amount'))
+        category_totals_today = Expense.objects.filter(user_id=uid,date__day=curr_day,date__month=curr_month,date__year=curr__year).values('category').order_by('category').annotate(sum=Sum('amount'))
     except:
         category_totals_today = {}
     print(category_totals_today.values())
@@ -30,7 +30,9 @@ def users_totals_permonth(request,uid):
 
 def user_spend_by_category(request,uid):
     curr_day = datetime.date.today().day
-    spend_perCategory = calculate_spend_per_category(uid,curr_day)
+    curr_month = datetime.date.today().month
+    curr_year = datetime.date.today().year
+    spend_perCategory = calculate_spend_per_category(uid,curr_day,curr_month,curr_year)
 
     return JsonResponse(Category_Spent_Serializer(spend_perCategory))
 

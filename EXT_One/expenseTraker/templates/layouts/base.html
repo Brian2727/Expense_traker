@@ -4,63 +4,79 @@
 <html lang="en">
 
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <link rel="canonical" href="https://appseed.us/admin-dashboards/django-dashboard-argon">
-  
-  <title>
-  {% block title %}
-
-  {% endblock %}
-  </title>
-  <!-- Favicon - loaded as static -->
-  <link rel="icon" href="{% static 'assets/img/brand/favicon.png' %}" type="image/png">
-  <!-- Fonts -->
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700">
-  <!-- Icons -->
-  <link rel="stylesheet" href="{% static 'assets/vendor/nucleo/css/nucleo.css' %}" type="text/css">
-  <link rel="stylesheet" href="{% static 'assets/vendor/@fortawesome/fontawesome-free/css/all.min.css' %}" type="text/css">
-  <!-- Page plugins -->
-  <!-- Argon CSS -->
-  <link rel="stylesheet" href="{% static 'assets/css/argon.css' %}" type="text/css">
-
-  <!-- Specific CSS goes HERE -->
-  {% block stylesheets %}
-
-  {% endblock stylesheets %}
-
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>
+        {% block title %}{% endblock %}
+    </title>
+    <!-- Favicon -->
+    <link rel="icon" href="{% static 'assets/img/brand/favicon.png' %}" type="image/png">
+    <!-- Fonts -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css">
+    <!-- Core CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'assets/css/argon.css' %}" type="text/css">
+    <!-- Custom CSS -->
+    <style>
+        :root {
+            --primary-color: #5e72e4;
+            --secondary-color: #f7fafc;
+            --text-primary: #2d3748;
+            --text-secondary: #718096;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--secondary-color);
+            color: var(--text-primary);
+        }
+        .nav-link {
+            transition: all 0.2s ease;
+        }
+        .nav-link:hover {
+            color: var(--primary-color);
+        }
+        .card {
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            transition: transform 0.2s ease;
+        }
+        .card:hover {
+            transform: translateY(-2px);
+        }
+        .btn {
+            border-radius: 0.5rem;
+            transition: all 0.2s ease;
+        }
+        .btn:hover {
+            transform: translateY(-1px);
+        }
+    </style>
+    {% block stylesheets %}{% endblock stylesheets %}
 </head>
 
-<body class="">
+<body class="bg-gray-50">
+    {% include "includes/sidenav.html" %}
 
-  {% include "includes/sidenav.html" %}
+    <div class="main-content" id="panel">
+        {% include "includes/navigation.html" %}
 
-  <div class="main-content" id="panel">
+        <div class="container mx-auto px-4 py-6">
+            {% block content %}{% endblock content %}
+        </div>
+    </div>
 
-    {% include "includes/navigation.html" %}
-<!-- HTML body content goes here -->
-    {% block content %}
-
-    {% endblock content %}
-
-  </div>
-
-  {% include "includes/scripts.html" %}
-
-  <!-- Specific JS goes HERE --> 
-  {% block javascripts %}
-
-  {% endblock javascripts %}
-  <script>
-      var uid = {{ request.user.id }}
-
-  </script>
-  <script src="{% static 'assets/js/argon.js' %}">
-
- </script>
-
-
-
+    <!-- Core JS -->
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.0/dist/cdn.min.js"></script>
+    {% include "includes/scripts.html" %}
+    
+    {% block javascripts %}{% endblock javascripts %}
+    
+    <script>
+        var uid = {{ request.user.id }}
+    </script>
+    <script src="{% static 'assets/js/argon.js' %}"></script>
 </body>
 
 </html>

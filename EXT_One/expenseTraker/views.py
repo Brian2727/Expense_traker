@@ -39,7 +39,7 @@ def calculate_expenses(curr_day,curr_month,curr_year,curr_day_ofweek,uid):
 # Calculates the Total amount of expenses in the current week
     try:
         total_expense_week = Expense.objects.filter(user_id=uid,date__gte=datetime.date(curr_year, curr_month, (curr_day - curr_day_ofweek)),
-                                                    date__lte=datetime.date(curr_year, curr_month, (curr_day - curr_day_ofweek + 7))).aggregate(Sum('amount',default=0))
+                                              date__lte=datetime.date(curr_year, curr_month, (curr_day - curr_day_ofweek + 7))).aggregate(Sum('amount',default=0))
     except:
         total_expense_week = {'amount__sum':0}
 # Calculate the expenses compared to last week
@@ -52,7 +52,7 @@ def calculate_expenses(curr_day,curr_month,curr_year,curr_day_ofweek,uid):
 
 # Calculates the Total amount of expenses in the current day
     try:
-        total_expense_today = Expense.objects.filter(user_id=uid,date__day=curr_day).aggregate(Sum('amount',default=0))
+        total_expense_today = Expense.objects.filter(user_id=uid,date__day=curr_day,date__month=curr_month,date__year=curr_year).aggregate(Sum('amount',default=0))
     except:
         total_expense_today = {'amount__sum':0}
 #collects the expenses from yesterday and it calculates the difference
@@ -67,7 +67,7 @@ def calculate_expenses(curr_day,curr_month,curr_year,curr_day_ofweek,uid):
 # Calculates the Total amount of expenses separated by category in current day
 #no need to add a default value to this one since on the view we will not itterate ove the for loop
     try:
-        category_totals_today = Expense.objects.filter(user_id=uid,date__day=curr_day).values('category').order_by('category').annotate(sum=Sum('amount'))
+        category_totals_today = Expense.objects.filter(user_id=uid,date__day=curr_day,date__month=curr_month,date__year=curr_year).values('category').order_by('category').annotate(sum=Sum('amount'))
     except:
         category_totals_today = {}
 # Calculate the total spended by category this week.
